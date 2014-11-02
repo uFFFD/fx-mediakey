@@ -1,0 +1,13 @@
+{
+  "name": "fx-mediakey",
+  "title": "Media Key Support",
+  "id": "jid1-tRy8saJ4ItTNjg",
+  "description": "Add support for global media keys",
+  "author": "uFFFD",
+  "homepage": "https://github.com/uFFFD/fx-mediakey",
+  "license": "GPLv3",
+  "version": "0.1",
+  "permissions": {
+    "private-browsing": true
+  }
+}
