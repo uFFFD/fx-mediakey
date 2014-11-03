@@ -12,10 +12,11 @@ FX13=path\to\fx13\$(FIREFOX)
 
 BINARYARGS=--binary-args "-url examples/test.html -jsconsole"
 USERPREFS=--user-prefs prefs.json
-ARGS=$(BINARYARGS) $(USERPREFS)
+TEMPLATE=--templatedir template
+ARGS=$(BINARYARGS) $(USERPREFS) $(TEMPLATE)
 
 xpi:
-	cfx xpi
+	cfx xpi $(TEMPLATE)
 
 run:
 	cfx run -b $(DEFAULT) $(ARGS)
