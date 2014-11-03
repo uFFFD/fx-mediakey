@@ -17,7 +17,7 @@
 
 "use strict";
 
-self.port.on("keyup", keyCode => {
+self.port.on("keyup", function (keyCode) {
   // https://developer.mozilla.org/en-US/docs/Web/API/event.initKeyEvent
   let evt = document.createEvent("KeyboardEvent");
   evt.initKeyEvent("keyup", true, true, null, // type, bubbles, cancelable, viewArg
