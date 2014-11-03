@@ -7,6 +7,7 @@ FX30=path\to\fx30\$(FIREFOX)
 FX27=path\to\fx27\$(FIREFOX)
 FX22=path\to\fx22\$(FIREFOX)
 FX21=path\to\fx21\$(FIREFOX)
+FX20=path\to\fx20\$(FIREFOX)
 
 BINARYARGS=--binary-args "-url examples/test.html -jsconsole"
 USERPREFS=--user-prefs prefs.json
@@ -38,3 +39,6 @@ fx22:
 
 fx21:
 	cfx run -b $(FX21) $(ARGS)
+
+fx20:
+	cfx run -b $(FX20) $(ARGS)
