@@ -1,6 +1,7 @@
 {
   "name": "fx-mediakey",
   "title": "Media Key Support",
+  "fullName": "Media Key Support",
   "id": "jid1-tRy8saJ4ItTNjg",
   "description": "Add support for global media keys",
   "author": "uFFFD",
