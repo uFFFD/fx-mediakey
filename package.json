@@ -9,5 +9,14 @@
   "version": "0.1",
   "permissions": {
     "private-browsing": true
-  }
+  },
+  "preferences": [
+    {
+      "name": "simulateKeyEvents",
+      "title": "Simulate Key Events",
+      "description": "Simulate and send keyup events to every tab",
+      "type": "bool",
+      "value": false
+    }
+  ]
 }
