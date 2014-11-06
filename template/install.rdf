@@ -21,6 +21,7 @@
         <em:maxVersion>33.*</em:maxVersion>
       </Description>
     </em:targetApplication>
+    <em:targetPlatform>WINNT</em:targetPlatform>
 
     <!-- Front End MetaData -->
     <em:name>Test App</em:name>
