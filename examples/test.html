@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>KeyEvent Test</title>
+<style>
+td {
+  padding: 4px;
+  min-width: 100px;
+}
+</style>
+</head>
+<body>
+<table border=1>
+<tr>
+<td>key</td><td id="key"></td>
+</tr>
+<tr>
+<td>keyCode</td><td id="keycode1"></td>
+</tr>
+<tr>
+<td>keyCode(hex)</td><td id="keycode2"></td>
+</tr>
+</table>
+<script>
+document.addEventListener("keyup", function(e) {
+  document.querySelector("#key").innerHTML = e.key;
+  document.querySelector("#keycode1").innerHTML = e.keyCode;
+  document.querySelector("#keycode2").innerHTML = e.keyCode.toString(16);
+});
+</script>
+</body>
+</html>

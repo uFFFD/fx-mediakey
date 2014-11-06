@@ -1,0 +1,40 @@
+FIREFOX=firefox.exe
+DEFAULT=path\to\release\$(FIREFOX)
+BETA=path\to\beta\$(FIREFOX)
+AURORA=path\to\aurora\$(FIREFOX)
+NIGHTLY=path\to\nightly\$(FIREFOX)
+FX30=path\to\fx30\$(FIREFOX)
+FX27=path\to\fx27\$(FIREFOX)
+FX22=path\to\fx22\$(FIREFOX)
+FX21=path\to\fx21\$(FIREFOX)
+
+BINARYARGS=--binary-args "-url examples/test.html -jsconsole"
+USERPREFS=--user-prefs prefs.json
+ARGS=$(BINARYARGS) $(USERPREFS)
+
+xpi:
+	cfx xpi
+
+run:
+	cfx run -b $(DEFAULT) $(ARGS)
+
+beta:
+	cfx run -b $(BETA) $(ARGS)
+
+aurora:
+	cfx run -b $(AURORA) $(ARGS)
+
+nightly:
+	cfx run -b $(NIGHTLY) $(ARGS)
+
+fx30:
+	cfx run -b $(FX30) $(ARGS)
+
+fx27:
+	cfx run -b $(FX27) $(ARGS)
+
+fx22:
+	cfx run -b $(FX22) $(ARGS)
+
+fx21:
+	cfx run -b $(FX21) $(ARGS)
