@@ -11,11 +11,8 @@ Special thanks to [Alexandre Poirot] (http://blog.techno-barje.fr/) for his grea
 
 ## How to build
 
-1. download addon sdk from https://github.com/mozilla/addon-sdk or https://ftp.mozilla.org/pub/mozilla.org/labs/jetpack/
-  * apply patches from [cfx-patch] (https://github.com/uFFFD/cfx-patch) (optional)
-2. clone this repo
-3. activate addon sdk
-4. `make xpi` or `cfx xpi --templatedir template` or `cfx xpi`
+1. download 7-Zip command line version http://www.7-zip.org/download.html
+2. `make xpi`
 
 ## How to use
 

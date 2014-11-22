@@ -1,49 +1,45 @@
+XPI=mediakey@uFFFD.xpi
+
 FIREFOX=firefox.exe
-DEFAULT=path\to\release\$(FIREFOX)
+BINARY=path\to\release\$(FIREFOX)
 BETA=path\to\beta\$(FIREFOX)
 AURORA=path\to\aurora\$(FIREFOX)
 NIGHTLY=path\to\nightly\$(FIREFOX)
-FX30=path\to\fx30\$(FIREFOX)
-FX27=path\to\fx27\$(FIREFOX)
-FX22=path\to\fx22\$(FIREFOX)
-FX21=path\to\fx21\$(FIREFOX)
-FX20=path\to\fx20\$(FIREFOX)
-FX13=path\to\fx13\$(FIREFOX)
 
-BINARYARGS=--binary-args "-url examples/test.html -jsconsole"
-USERPREFS=--user-prefs prefs.json
-TEMPLATE=--templatedir template
-ARGS=$(BINARYARGS) $(USERPREFS) $(TEMPLATE)
+PROFILE=pato\to\profile
+EXTENSIONS=$(PROFILE)\extensions
 
-xpi:
-	cfx xpi $(TEMPLATE)
+ARGS=-profile $(PROFILE) -no-remote -url examples\test.html -jsconsole
 
-run:
-	cfx run -b $(DEFAULT) $(ARGS)
+xpi: $(XPI)
 
-beta:
-	cfx run -b $(BETA) $(ARGS)
+$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content\mk-win.js content\defaultprefs.js
+	-del $(XPI)
+	7za a -tzip $(XPI) $^
 
-aurora:
-	cfx run -b $(AURORA) $(ARGS)
+$(PROFILE):
+	md $(PROFILE)
+	copy user.js $(PROFILE)\user.js
 
-nightly:
-	cfx run -b $(NIGHTLY) $(ARGS)
+$(EXTENSIONS): $(PROFILE)
+	md $(EXTENSIONS)
 
-fx30:
-	cfx run -b $(FX30) $(ARGS)
+run: $(EXTENSIONS) $(XPI)
+	copy $(XPI) $(EXTENSIONS)\$(XPI)
+	$(BINARY) $(ARGS)
 
-fx27:
-	cfx run -b $(FX27) $(ARGS)
+beta: $(EXTENSIONS) $(XPI)
+	copy $(XPI) $(EXTENSIONS)\$(XPI)
+	$(BETA) $(ARGS)
 
-fx22:
-	cfx run -b $(FX22) $(ARGS)
+aurora: $(EXTENSIONS) $(XPI)
+	copy $(XPI) $(EXTENSIONS)\$(XPI)
+	$(AURORA) $(ARGS)
 
-fx21:
-	cfx run -b $(FX21) $(ARGS)
+nightly: $(EXTENSIONS) $(XPI)
+	copy $(XPI) $(EXTENSIONS)\$(XPI)
+	$(NIGHTLY) $(ARGS)
 
-fx20:
-	cfx run -b $(FX20) $(ARGS)
-
-fx13:
-	cfx run -b $(FX13) $(ARGS)
+clean:
+	-rd /s /q $(PROFILE)
+	-del $(XPI)

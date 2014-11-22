@@ -1,9 +1,0 @@
-{
-  "browser.tabs.closeWindowWithLastTab": false,
-  "browser.safebrowsing.enabled": false,
-  "browser.safebrowsing.malware.enabled": false,
-  "general.warnOnAboutConfig": false,
-  "media.gmp-gmpopenh264.autoupdate": false,
-  "extensions.ui.lastCategory": "addons://list/extension",
-  "extensions.jid1-tRy8saJ4ItTNjg@jetpack.simulateKeyEvents": true
-}

@@ -17,11 +17,16 @@
 
 "use strict";
 
-const { Cu } = require("chrome");
-const { ctypes } = Cu.import("resource://gre/modules/ctypes.jsm");
-const { emit } = require("sdk/event/core");
+this.EXPORTED_SYMBOLS = [
+  "MKWin"
+];
 
-const MKWin = function (evtTarget) {
+const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+const { ctypes } = Cu.import("resource://gre/modules/ctypes.jsm");
+Cu.import("resource://gre/modules/devtools/Console.jsm");
+
+this.MKWin = function MKWin() {
+  const observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
   const kernel32 = ctypes.open("kernel32.dll");
   const user32 = ctypes.open("user32.dll");
 
@@ -246,7 +251,7 @@ const MKWin = function (evtTarget) {
         return false;
     }
     console.log("mediakey pressed: " + keyname);
-    emit(evtTarget, "mediakey", keyname);
+    observerService.notifyObservers(null, "mediakey", keyname);
     return true;
   };
 
@@ -325,5 +330,3 @@ const MKWin = function (evtTarget) {
     kernel32.close();
   };
 };
-
-exports.MKWin = MKWin;
