@@ -13,7 +13,7 @@ ARGS=-profile $(PROFILE) -no-remote -url examples\test.html -jsconsole
 
 xpi: $(XPI)
 
-$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content\mk-win.js content\defaultprefs.js
+$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content\mk-win.js content\frame-script.js content\defaultprefs.js
 	-del $(XPI)
 	7za a -tzip $(XPI) $^
 

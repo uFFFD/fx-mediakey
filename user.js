@@ -52,6 +52,7 @@ user_pref("browser.safebrowsing.provider.0.gethashURL", "http://localhost/safebr
 user_pref("browser.safebrowsing.provider.0.updateURL", "http://localhost/safebrowsing-dummy/update");
 
 //////////////////////////////////////////////////////////////////////
+
 user_pref("browser.safebrowsing.enabled", false);
 user_pref("browser.safebrowsing.malware.enabled", false);
 user_pref("browser.shell.checkDefaultBrowser", false);
@@ -63,3 +64,5 @@ user_pref("general.warnOnAboutConfig", false);
 user_pref("media.gmp-gmpopenh264.autoupdate", false);
 
 user_pref("extensions.mediakey@uFFFD.simulateKeyEvents", true);
+
+user_pref("browser.tabs.remote.autostart", true);
