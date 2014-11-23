@@ -6,10 +6,7 @@ BETA=path\to\beta\$(FIREFOX)
 AURORA=path\to\aurora\$(FIREFOX)
 NIGHTLY=path\to\nightly\$(FIREFOX)
 
-PROFILE=pato\to\profile
-EXTENSIONS=$(PROFILE)\extensions
-
-ARGS=-profile $(PROFILE) -no-remote -url examples\test.html -jsconsole
+ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole"
 
 xpi: $(XPI)
 
@@ -17,29 +14,14 @@ $(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul
 	-del $(XPI)
 	7za a -tzip $(XPI) $^
 
-$(PROFILE):
-	md $(PROFILE)
-	copy user.js $(PROFILE)\user.js
+run: xpi
+	mozrunner $(ARGS) --binary $(BINARY)
 
-$(EXTENSIONS): $(PROFILE)
-	md $(EXTENSIONS)
+beta: xpi
+	mozrunner $(ARGS) --binary $(BETA)
 
-run: $(EXTENSIONS) $(XPI)
-	copy $(XPI) $(EXTENSIONS)\$(XPI)
-	$(BINARY) $(ARGS)
+aurora: xpi
+	mozrunner $(ARGS) --binary $(AURORA)
 
-beta: $(EXTENSIONS) $(XPI)
-	copy $(XPI) $(EXTENSIONS)\$(XPI)
-	$(BETA) $(ARGS)
-
-aurora: $(EXTENSIONS) $(XPI)
-	copy $(XPI) $(EXTENSIONS)\$(XPI)
-	$(AURORA) $(ARGS)
-
-nightly: $(EXTENSIONS) $(XPI)
-	copy $(XPI) $(EXTENSIONS)\$(XPI)
-	$(NIGHTLY) $(ARGS)
-
-clean:
-	-rd /s /q $(PROFILE)
-	-del $(XPI)
+nightly: xpi
+	mozrunner $(ARGS) --binary $(NIGHTLY)
