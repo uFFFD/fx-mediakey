@@ -11,7 +11,7 @@ ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "gener
 
 xpi: $(XPI)
 
-$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content\mk-win.js content\frame-script.js content\defaultprefs.js locale\en-US\options.dtd
+$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content locale
 	-del $(XPI)
 	7za a -tzip $(XPI) $^
 
@@ -26,3 +26,6 @@ aurora: xpi
 
 nightly: xpi
 	mozrunner $(ARGS) --binary $(NIGHTLY)
+
+clean:
+	-del $(XPI)

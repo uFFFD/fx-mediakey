@@ -1,0 +1,2 @@
+<!ENTITY pref_simulateKeyEvents.title "模擬按鍵事件">
+<!ENTITY pref_simulateKeyEvents.desc "模擬並發送 keyup 事件到每個標籤">

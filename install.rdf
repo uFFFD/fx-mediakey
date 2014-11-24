@@ -34,5 +34,23 @@
         <em:homepageURL>https://github.com/uFFFD/fx-mediakey</em:homepageURL>
       </Description>
     </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>zh-CN</em:locale>
+        <em:name>多媒体键支持</em:name>
+        <em:description>添加全局多媒体键支持</em:description>
+        <em:creator>uFFFD</em:creator>
+        <em:homepageURL>https://github.com/uFFFD/fx-mediakey</em:homepageURL>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>zh-TW</em:locale>
+        <em:name>多媒體鍵支援</em:name>
+        <em:description>添加全局多媒體鍵支援</em:description>
+        <em:creator>uFFFD</em:creator>
+        <em:homepageURL>https://github.com/uFFFD/fx-mediakey</em:homepageURL>
+      </Description>
+    </em:localized>
   </Description>
 </RDF>
