@@ -6,11 +6,12 @@ BETA=path\to\beta\$(FIREFOX)
 AURORA=path\to\aurora\$(FIREFOX)
 NIGHTLY=path\to\nightly\$(FIREFOX)
 
-ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole"
+LOCALE=en-US
+ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "general.useragent.locale:$(LOCALE)"
 
 xpi: $(XPI)
 
-$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content\mk-win.js content\frame-script.js content\defaultprefs.js
+$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content\mk-win.js content\frame-script.js content\defaultprefs.js locale\en-US\options.dtd
 	-del $(XPI)
 	7za a -tzip $(XPI) $^
 

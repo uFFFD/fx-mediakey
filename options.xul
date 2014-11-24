@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
+<!DOCTYPE mks_dialog SYSTEM "chrome://mediakeysupport/locale/options.dtd">
 <vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <setting pref="extensions.mediakey@uFFFD.simulateKeyEvents" title="Simulate Key Events" type="bool">Simulate and send keyup events to every tab</setting>
+  <setting pref="extensions.mediakey@uFFFD.simulateKeyEvents" title="&pref_simulateKeyEvents.title;" type="bool">&pref_simulateKeyEvents.desc;</setting>
 </vbox>
