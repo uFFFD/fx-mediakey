@@ -31,10 +31,36 @@ const PREF_SIMKEYEVENTS = PREF_ROOT + "simulateKeyEvents";
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/devtools/Console.jsm");
 
+// https://developer.mozilla.org/en-US/Add-ons/Working_with_multiprocess_Firefox#Backwards_compatibility_of_the_new_APIs
+// only use message manager in firefox 17.0+
+const MM_AVAILABLE = Services.vc.compare(Services.appinfo.version, "17.0") >= 0;
+
 let MediaKeySupport = function () {
   this.mkwin = null;
   this.simKeyEvents = false;
   this.globalMM = null;
+};
+
+MediaKeySupport.prototype.sendKeyEvent = function (keyCode) {
+  let enumerator = Services.wm.getEnumerator("navigator:browser");
+  while(enumerator.hasMoreElements()) {
+    let win = enumerator.getNext();
+    let gBrowser = win.gBrowser;
+    let num = gBrowser.browsers.length;
+    for (let i = 0; i < num; i++) {
+      let b = gBrowser.getBrowserAtIndex(i);
+      try {
+        let doc = b.contentDocument;
+        let evt = doc.createEvent("KeyboardEvent");
+        evt.initKeyEvent("keyup", true, true, null, // type, bubbles, cancelable, viewArg
+                         false, false, false, false, // ctrlKeyArg, altKeyArg, shiftKeyArg, metaKeyArg,
+                         keyCode, 0); // keyCodeArg, charCodeArg
+        doc.dispatchEvent(evt);
+      } catch (e) {
+        Cu.reportError(e);
+      }
+    }
+  }
 };
 
 MediaKeySupport.prototype.observe = function (sub, topic, data) {
@@ -57,25 +83,31 @@ MediaKeySupport.prototype.observe = function (sub, topic, data) {
         default:
           return;
       }
-      this.globalMM.broadcastAsyncMessage("mediakey:key", {
-        keyName: data,
-        keyCode: keyCode
-      });
+      if (MM_AVAILABLE) {
+        this.globalMM.broadcastAsyncMessage("mediakey:key", {
+          keyName: data,
+          keyCode: keyCode
+        });
+      } else {
+        this.sendKeyEvent(keyCode);
+      }
     }
   }
   else { // topic == "nsPref:changed"
     if (data == PREF_SIMKEYEVENTS) {
       this.simKeyEvents = Services.prefs.getBoolPref(data);
-      if (this.simKeyEvents) {
-        if (this.globalMM == null) {
-          this.globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+      if (MM_AVAILABLE) {
+        if (this.simKeyEvents) {
+          if (this.globalMM == null) {
+            this.globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
+          }
+          this.globalMM.loadFrameScript("chrome://mediakeysupport/content/frame-script.js", true);
         }
-        this.globalMM.loadFrameScript("chrome://mediakeysupport/content/frame-script.js", true);
-      }
-      else {
-        if (this.globalMM) {
-          this.globalMM.broadcastAsyncMessage("mediakey:unload");
-          this.globalMM.removeDelayedFrameScript("chrome://mediakeysupport/content/frame-script.js");
+        else {
+          if (this.globalMM) {
+            this.globalMM.broadcastAsyncMessage("mediakey:unload");
+            this.globalMM.removeDelayedFrameScript("chrome://mediakeysupport/content/frame-script.js");
+          }
         }
       }
     }
@@ -105,14 +137,14 @@ MediaKeySupport.prototype.init = function () {
   this.mkwin.init();
   this.simKeyEvents = Services.prefs.getBoolPref(PREF_SIMKEYEVENTS);
   this.register();
-  if (this.simKeyEvents) {
+  if (MM_AVAILABLE && this.simKeyEvents) {
     this.globalMM = Cc["@mozilla.org/globalmessagemanager;1"].getService(Ci.nsIMessageListenerManager);
     this.globalMM.loadFrameScript("chrome://mediakeysupport/content/frame-script.js", true);
   }
 };
 
 MediaKeySupport.prototype.unload = function () {
-  if (this.globalMM) {
+  if (MM_AVAILABLE && this.globalMM) {
     if (this.simKeyEvents) {
       this.globalMM.broadcastAsyncMessage("mediakey:unload");
     }
