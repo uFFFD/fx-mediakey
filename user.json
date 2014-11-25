@@ -65,7 +65,5 @@
   "browser.newtabpage.directory.source": "data:application/json,{}",
   "browser.newtabpage.directory.ping": "",
 
-  "extensions.mediakey@uFFFD.simulateKeyEvents": true,
-
-  "browser.tabs.remote.autostart": true
+  "extensions.mediakey@uFFFD.simulateKeyEvents": true
 }

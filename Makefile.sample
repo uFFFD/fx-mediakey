@@ -7,7 +7,8 @@ AURORA=path\to\aurora\$(FIREFOX)
 NIGHTLY=path\to\nightly\$(FIREFOX)
 
 LOCALE=en-US
-ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "general.useragent.locale:$(LOCALE)"
+E10S=true
+ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "general.useragent.locale:$(LOCALE)" --pref "browser.tabs.remote.autostart:$(E10S)"
 
 xpi: $(XPI)
 
