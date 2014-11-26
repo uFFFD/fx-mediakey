@@ -64,6 +64,7 @@
   "media.gmp-gmpopenh264.autoupdate": false,
   "browser.newtabpage.directory.source": "data:application/json,{}",
   "browser.newtabpage.directory.ping": "",
+  "toolkit.telemetry.enabled": false,
 
   "extensions.mediakey@uFFFD.simulateKeyEvents": true
 }
