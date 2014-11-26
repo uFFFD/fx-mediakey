@@ -1,14 +1,14 @@
-XPI=mediakey@uFFFD.xpi
+XPI = mediakey@uFFFD.xpi
 
-FIREFOX=firefox.exe
-BINARY=path\to\release\$(FIREFOX)
-BETA=path\to\beta\$(FIREFOX)
-AURORA=path\to\aurora\$(FIREFOX)
-NIGHTLY=path\to\nightly\$(FIREFOX)
+FIREFOX = firefox
+BINARY = path/to/release/$(FIREFOX)
+BETA = path/to/beta/$(FIREFOX)
+AURORA = path/to/aurora/$(FIREFOX)
+NIGHTLY = path/to/nightly/$(FIREFOX)
 
-LOCALE=en-US
-E10S=true
-ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "general.useragent.locale:$(LOCALE)" --pref "browser.tabs.remote.autostart:$(E10S)"
+LOCALE = en-US
+E10S = true
+ARGS = --addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "general.useragent.locale:$(LOCALE)" --pref "browser.tabs.remote.autostart:$(E10S)"
 
 xpi:
 	python xpi.py $(XPI) install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content/*.js locale/*/options.dtd
@@ -16,14 +16,14 @@ xpi:
 run: xpi
 	mozrunner $(ARGS) --binary $(BINARY)
 
-beta: xpi
-	mozrunner $(ARGS) --binary $(BETA)
+beta: BINARY=$(BETA)
+beta: run
 
-aurora: xpi
-	mozrunner $(ARGS) --binary $(AURORA)
+aurora: BINARY = $(AURORA)
+aurora: run
 
-nightly: xpi
-	mozrunner $(ARGS) --binary $(NIGHTLY)
+nightly: BINARY = $(NIGHTLY)
+nightly: run
 
 clean:
-	-del $(XPI)
+	-rm $(XPI)
