@@ -29,7 +29,6 @@ const PREF_ROOT = "extensions.mediakey@uFFFD.";
 const PREF_SIMKEYEVENTS = PREF_ROOT + "simulateKeyEvents";
 
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/devtools/Console.jsm");
 
 // https://developer.mozilla.org/en-US/Add-ons/Working_with_multiprocess_Firefox#Backwards_compatibility_of_the_new_APIs
 // only use message manager in firefox 17.0+

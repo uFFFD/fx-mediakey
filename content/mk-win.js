@@ -23,7 +23,19 @@ this.EXPORTED_SYMBOLS = [
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const { ctypes } = Cu.import("resource://gre/modules/ctypes.jsm");
-Cu.import("resource://gre/modules/devtools/Console.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
+let console;
+if (Services.vc.compare(Services.appinfo.version, "15.0") >= 0) {
+  let c = Cu.import("resource://gre/modules/devtools/Console.jsm");
+  console = c.console;
+}
+else {
+  console = {
+    log: function(msg) {
+      dump(msg + "\n");
+    }
+  };
+}
 
 this.MKWin = function MKWin() {
   const observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
