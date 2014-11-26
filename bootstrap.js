@@ -32,7 +32,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 // https://developer.mozilla.org/en-US/Add-ons/Working_with_multiprocess_Firefox#Backwards_compatibility_of_the_new_APIs
 // only use message manager in firefox 17.0+
-const MM_AVAILABLE = Services.vc.compare(Services.appinfo.version, "17.0") >= 0;
+const MM_AVAILABLE = Services.vc.compare(Services.appinfo.platformVersion, "17.0") >= 0;
 
 let MediaKeySupport = function () {
   this.mkwin = null;

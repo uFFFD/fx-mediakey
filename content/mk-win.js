@@ -25,7 +25,7 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const { ctypes } = Cu.import("resource://gre/modules/ctypes.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 let console;
-if (Services.vc.compare(Services.appinfo.version, "15.0") >= 0) {
+if (Services.vc.compare(Services.appinfo.platformVersion, "15.0") >= 0) {
   let c = Cu.import("resource://gre/modules/devtools/Console.jsm");
   console = c.console;
 }
