@@ -10,11 +10,8 @@ LOCALE=en-US
 E10S=true
 ARGS=--addon $(XPI) --preferences user.json --app-arg "-jsconsole" --pref "general.useragent.locale:$(LOCALE)" --pref "browser.tabs.remote.autostart:$(E10S)"
 
-xpi: $(XPI)
-
-$(XPI): install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content locale
-	-del $(XPI)
-	7za a -tzip $(XPI) $^
+xpi:
+	python xpi.py $(XPI) install.rdf bootstrap.js chrome.manifest icon.png icon64.png options.xul COPYING content/*.js locale/*/options.dtd
 
 run: xpi
 	mozrunner $(ARGS) --binary $(BINARY)

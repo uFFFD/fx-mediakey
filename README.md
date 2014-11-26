@@ -5,14 +5,12 @@ Add support for global media keys.
 Currently only support Windows.
 
 Special thanks to [Alexandre Poirot] (http://blog.techno-barje.fr/) for his great js-ctypes tutorials and the idea of using message-only window:
-
 - http://blog.techno-barje.fr/post/2010/08/27/jsctypes-win32api-jetpack-jetintray/
 - https://github.com/ochameau/jetintray
 
 ## How to build
 
-1. download 7-Zip command line version http://www.7-zip.org/download.html
-2. `make xpi`
+`make xpi`
 
 ## How to use
 
@@ -45,4 +43,5 @@ see examples/mk_test.user.js
 ## License
 
 GNU General Public License v3.0
+
 http://www.gnu.org/copyleft/gpl.html
