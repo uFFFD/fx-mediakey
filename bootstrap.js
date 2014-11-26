@@ -17,7 +17,7 @@
 
 "use strict";
 
-const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
+const { classes: Cc, interfaces: Ci, utils: Cu, manager: Cm } = Components;
 
 const MK_TOPIC = "mediakey";
 const KEY_NEXT = "next";
@@ -206,6 +206,9 @@ function setUCharPref(prefName, text, branch) { // Unicode setCharPref
 let mks = new MediaKeySupport();
 
 function startup(data, reason) {
+  if (Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0) {
+    Cm.addBootstrappedManifestLocation(data.installPath);
+  }
   mks.init();
 }
 
@@ -215,6 +218,9 @@ function shutdown(data, reason) {
     return;
   }
   mks.unload();
+  if (Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0) {
+    Cm.removeBootstrappedManifestLocation(data.installPath);
+  }
 }
 
 function install(data, reason) {
