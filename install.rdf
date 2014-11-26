@@ -20,10 +20,6 @@
     <em:targetPlatform>WINNT</em:targetPlatform>
     <em:optionsType>2</em:optionsType>
 
-    <em:name>Media Key Support</em:name>
-    <em:description>Add support for global media keys</em:description>
-    <em:creator>uFFFD</em:creator>
-    <em:homepageURL>https://github.com/uFFFD/fx-mediakey</em:homepageURL>
     <!-- metadata l10n -->
     <em:localized>
       <Description>
