@@ -129,9 +129,13 @@ MediaKeySupport.prototype.unregister = function () {
 };
 
 MediaKeySupport.prototype.init = function () {
-  Services.scriptloader.loadSubScript("chrome://mediakeysupport/content/defaultprefs.js",
+  let scheme = "chrome";
+  if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
+    scheme = "resource";
+  }
+  Services.scriptloader.loadSubScript(scheme + "://mediakeysupport/content/defaultprefs.js",
                                       { pref: setDefaultPref } );
-  Cu.import("chrome://mediakeysupport/content/mk-win.js");
+  Cu.import(scheme + "://mediakeysupport/content/mk-win.js");
   this.mkwin = new MKWin();
   this.mkwin.init();
   this.simKeyEvents = Services.prefs.getBoolPref(PREF_SIMKEYEVENTS);
@@ -150,7 +154,14 @@ MediaKeySupport.prototype.unload = function () {
     this.globalMM.removeDelayedFrameScript("chrome://mediakeysupport/content/frame-script.js");
   }
   this.unregister();
-  Cu.unload("chrome://mediakeysupport/content/mk-win.js");
+  if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") > 0) {
+    Cu.unload("chrome://mediakeysupport/content/mk-win.js");
+  }
+  else if (Services.vc.compare(Services.appinfo.platformVersion, "6.*") > 0) {
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=481603
+    // there is no way to unload loaded JSM prior to firefox 7
+    Cu.unload("resource://mediakeysupport/content/mk-win.js");
+  }
 };
 
 MediaKeySupport.prototype.unloadmkwin = function () {
@@ -206,19 +217,35 @@ function setUCharPref(prefName, text, branch) { // Unicode setCharPref
 let mks = new MediaKeySupport();
 
 function startup(data, reason) {
-  if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
+  if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
+    // http://starkravingfinkle.org/blog/2011/01/restartless-add-ons-more-resources/
+    let resource = Services.io.getProtocolHandler("resource").QueryInterface(Ci.nsIResProtocolHandler);
+    let alias = Services.io.newFileURI(data.installPath);
+    if (!data.installPath.isDirectory())
+      alias = Services.io.newURI("jar:" + alias.spec + "!/", null, null);
+    resource.setSubstitution("mediakeysupport", alias);
+  }
+  else if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
     Cm.addBootstrappedManifestLocation(data.installPath);
   }
+
   mks.init();
 }
 
 function shutdown(data, reason) {
   mks.unloadmkwin();
+
   if (reason == APP_SHUTDOWN) {
     return;
   }
+
   mks.unload();
-  if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
+  if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
+    // http://starkravingfinkle.org/blog/2011/01/restartless-add-ons-more-resources/
+    let resource = Services.io.getProtocolHandler("resource").QueryInterface(Ci.nsIResProtocolHandler);
+    resource.setSubstitution("mediakeysupport", null);
+  }
+  else if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
     Cm.removeBootstrappedManifestLocation(data.installPath);
   }
 }
