@@ -32,7 +32,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 // https://developer.mozilla.org/en-US/Add-ons/Working_with_multiprocess_Firefox#Backwards_compatibility_of_the_new_APIs
 // only use message manager in firefox 17.0+
-const MM_AVAILABLE = Services.vc.compare(Services.appinfo.platformVersion, "17.0") >= 0;
+const MM_AVAILABLE = Services.vc.compare(Services.appinfo.platformVersion, "16.*") > 0;
 
 let MediaKeySupport = function () {
   this.mkwin = null;
@@ -206,7 +206,7 @@ function setUCharPref(prefName, text, branch) { // Unicode setCharPref
 let mks = new MediaKeySupport();
 
 function startup(data, reason) {
-  if (Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0) {
+  if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
     Cm.addBootstrappedManifestLocation(data.installPath);
   }
   mks.init();
@@ -218,7 +218,7 @@ function shutdown(data, reason) {
     return;
   }
   mks.unload();
-  if (Services.vc.compare(Services.appinfo.platformVersion, "10.0") < 0) {
+  if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
     Cm.removeBootstrappedManifestLocation(data.installPath);
   }
 }
