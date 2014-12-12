@@ -213,6 +213,98 @@ function setUCharPref(prefName, text, branch) { // Unicode setCharPref
 }
 
 //////////////////////////////////////////////////////////////////////
+// Manually add/remove UI elements
+// https://developer.mozilla.org/en-US/Add-ons/How_to_convert_an_overlay_extension_to_restartless#Step_9.3A_bootstrap.js
+
+function onMKSMenuPopup(evt) {
+  let simKeyEvent = evt.target.ownerDocument.getElementById("mksSimKeyEvent");
+  if (simKeyEvent) {
+    simKeyEvent.setAttribute("checked", mks.simKeyEvents);
+  }
+}
+
+function onSimKeyEventClick(evt) {
+  setGenericPref(Services.prefs, PREF_SIMKEYEVENTS, !mks.simKeyEvents);
+}
+
+function loadIntoWindow(window) {
+  /* call/move your UI construction function here */
+  let doc = window.document;
+  let toolmenu = doc.getElementById("menu_ToolsPopup");
+  if (toolmenu) {
+    let mksmenu = doc.createElement("menu");
+    let mkspopup = doc.createElement("menupopup");
+    let simKeyEvent = doc.createElement("menuitem");
+
+    mksmenu.setAttribute("id", "mksMenu");
+    mkspopup.setAttribute("id", "mksMenuPopup");
+    simKeyEvent.setAttribute("id", "mksSimKeyEvent");
+
+    mksmenu.setAttribute("label", "Media Key Support");
+    simKeyEvent.setAttribute("label", "Simulate Key Events");
+
+    simKeyEvent.setAttribute("type", "checkbox");
+    simKeyEvent.setAttribute("autocheck", false);
+    simKeyEvent.addEventListener("command", onSimKeyEventClick, false);
+
+    mkspopup.appendChild(simKeyEvent);
+    mksmenu.appendChild(mkspopup);
+    toolmenu.appendChild(mksmenu);
+
+    mkspopup.addEventListener("popupshowing", onMKSMenuPopup, false);
+  }
+}
+
+function unloadFromWindow(window) {
+  /* call/move your UI tear down function here */
+  let doc = window.document;
+  let simKeyEvent = doc.getElementById("mksSimKeyEvent");
+  if (simKeyEvent) {
+    simKeyEvent.removeEventListener("command", onSimKeyEventClick, false);
+  }
+  let mkspopup = doc.getElementById("mksMenuPopup");
+  if (mkspopup) {
+    mkspopup.removeEventListener("popupshowing", onMKSMenuPopup, false);
+  }
+  let toolmenu = doc.getElementById("menu_ToolsPopup");
+  let mksmenu = doc.getElementById("mksMenu");
+  if (toolmenu && mksmenu) {
+    toolmenu.removeChild(mksmenu);
+  }
+}
+
+function forEachOpenWindow(todo) { // Apply a function to all open browser windows
+  let windows = Services.wm.getEnumerator("navigator:browser");
+  while (windows.hasMoreElements()) {
+    todo(windows.getNext().QueryInterface(Ci.nsIDOMWindow));
+  }
+}
+
+let WindowListener = {
+  onOpenWindow: function(xulWindow) {
+    let window;
+    // https://developer.mozilla.org/en-US/docs/Mozilla/Tech/XPCOM/Reference/Interface/nsIDOMWindowInternal
+    if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
+      window = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                        .getInterface(Ci.nsIDOMWindowInternal);
+    }
+    else {
+      window = xulWindow.QueryInterface(Ci.nsIInterfaceRequestor)
+                        .getInterface(Ci.nsIDOMWindow);
+    }
+    function onWindowLoad() {
+      window.removeEventListener("load", onWindowLoad, false);
+      if (window.document.documentElement.getAttribute("windowtype") == "navigator:browser") {
+        loadIntoWindow(window);
+      }
+    }
+    window.addEventListener("load", onWindowLoad, false);
+  },
+  onCloseWindow: function(xulWindow) { },
+  onWindowTitleChange: function(xulWindow, newTitle) { }
+};
+
+//////////////////////////////////////////////////////////////////////
 
 let mks = new MediaKeySupport();
 
@@ -230,6 +322,9 @@ function startup(data, reason) {
   }
 
   mks.init();
+
+  Services.wm.addListener(WindowListener);
+  forEachOpenWindow(loadIntoWindow);
 }
 
 function shutdown(data, reason) {
@@ -238,6 +333,9 @@ function shutdown(data, reason) {
   if (reason == APP_SHUTDOWN) {
     return;
   }
+
+  Services.wm.removeListener(WindowListener);
+  forEachOpenWindow(unloadFromWindow);
 
   mks.unload();
   if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
