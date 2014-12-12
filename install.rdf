@@ -18,7 +18,6 @@
     </em:targetApplication>
 
     <em:targetPlatform>WINNT</em:targetPlatform>
-    <em:optionsType>2</em:optionsType>
 
     <!-- metadata l10n -->
     <em:localized>

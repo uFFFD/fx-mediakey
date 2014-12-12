@@ -1,2 +1,0 @@
-<!ENTITY pref_simulateKeyEvents.title "Simulate Key Events">
-<!ENTITY pref_simulateKeyEvents.desc "Simulate and send keyup events to every tab">
