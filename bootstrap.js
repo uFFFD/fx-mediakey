@@ -30,6 +30,29 @@ const PREF_SIMKEYEVENTS = PREF_ROOT + "simulateKeyEvents";
 
 Cu.import("resource://gre/modules/Services.jsm");
 
+// https://developer.mozilla.org/en-US/Add-ons/How_to_convert_an_overlay_extension_to_restartless#Step_10.3A_Bypass_cache_when_loading_properties_files
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+
+XPCOMUtils.defineLazyGetter(this, "strings", function() {
+  if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
+    return loadPropertiesFile("resource://mediakeysupport/locale/" + locale + "/mks.properties");
+  }
+  else {
+    return loadPropertiesFile("chrome://mediakeysupport/locale/mks.properties");
+  }
+});
+
+function loadPropertiesFile(path)
+{
+  /* HACK: The string bundle cache is cleared on addon shutdown, however it doesn't appear to do so reliably.
+     Errors can erratically happen on next load of the same file in certain instances. (at minimum, when strings are added/removed)
+     The apparently accepted solution to reliably load new versions is to always create bundles with a unique URL so as to bypass the cache.
+     This is accomplished by passing a random number in a parameter after a '?'. (this random ID is otherwise ignored)
+     The loaded string bundle is still cached on startup and should still be cleared out of the cache on addon shutdown.
+     This just bypasses the built-in cache for repeated loads of the same path so that a newly installed update loads cleanly. */
+  return Services.strings.createBundle(path + "?" + Math.random());
+}
+
 // https://developer.mozilla.org/en-US/Add-ons/Working_with_multiprocess_Firefox#Backwards_compatibility_of_the_new_APIs
 // only use message manager in firefox 17.0+
 const MM_AVAILABLE = Services.vc.compare(Services.appinfo.platformVersion, "16.*") > 0;
@@ -216,6 +239,31 @@ function setUCharPref(prefName, text, branch) { // Unicode setCharPref
 // Manually add/remove UI elements
 // https://developer.mozilla.org/en-US/Add-ons/How_to_convert_an_overlay_extension_to_restartless#Step_9.3A_bootstrap.js
 
+function onToolsMenuPopup(evt) {
+  // locale and string bundle may not be available when adding menuitems
+  // give them a chance to get localized in tools menu's popupshowing event
+  if (locale) {
+    evt.target.removeEventListener("popupshowing", onToolsMenuPopup, false);
+    let mksmenu = evt.target.ownerDocument.getElementById("mksMenu");
+    if (mksmenu) {
+      try {
+        mksmenu.setAttribute("label", strings.GetStringFromName("mksTitle"));
+      }
+      catch (e) {
+      }
+    }
+    let simKeyEvent = evt.target.ownerDocument.getElementById("mksSimKeyEvent");
+    if (simKeyEvent) {
+      try {
+        simKeyEvent.setAttribute("label", strings.GetStringFromName("simKeyEvents"));
+      }
+      catch (e) {
+      }
+    }
+    mksmenu.setAttribute("hidden", false);
+  }
+}
+
 function onMKSMenuPopup(evt) {
   let simKeyEvent = evt.target.ownerDocument.getElementById("mksSimKeyEvent");
   if (simKeyEvent) {
@@ -240,8 +288,26 @@ function loadIntoWindow(window) {
     mkspopup.setAttribute("id", "mksMenuPopup");
     simKeyEvent.setAttribute("id", "mksSimKeyEvent");
 
-    mksmenu.setAttribute("label", "Media Key Support");
-    simKeyEvent.setAttribute("label", "Simulate Key Events");
+    let mksLabel = "Media Key Support";
+    let simKeyEventLable = "Simulate Key Events";
+    if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") > 0 || locale) {
+      try {
+        mksLabel = strings.GetStringFromName("mksTitle");
+      }
+      catch (e) {
+      }
+      try {
+        simKeyEventLable = strings.GetStringFromName("simKeyEvents");
+      }
+      catch (e) {
+      }
+    }
+    else {
+      mksmenu.setAttribute("hidden", true);
+      toolmenu.addEventListener("popupshowing", onToolsMenuPopup, false);
+    }
+    mksmenu.setAttribute("label", mksLabel);
+    simKeyEvent.setAttribute("label", simKeyEventLable);
 
     simKeyEvent.setAttribute("type", "checkbox");
     simKeyEvent.setAttribute("autocheck", false);
@@ -307,6 +373,7 @@ let WindowListener = {
 //////////////////////////////////////////////////////////////////////
 
 let mks = new MediaKeySupport();
+let locale = null;
 
 function startup(data, reason) {
   if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") < 0) {
@@ -316,6 +383,31 @@ function startup(data, reason) {
     if (!data.installPath.isDirectory())
       alias = Services.io.newURI("jar:" + alias.spec + "!/", null, null);
     resource.setSubstitution("mediakeysupport", alias);
+
+    // findClosestLocale
+    Cu.import("resource://gre/modules/NetUtil.jsm");
+    NetUtil.asyncFetch("resource://mediakeysupport/chrome.manifest", function(aInputStream, aResult) {
+      if (!Components.isSuccessCode(aResult)) {
+        return;
+      }
+      let data = NetUtil.readInputStreamToString(aInputStream, aInputStream.available(), { charset: "utf-8" });
+      let availableLocales = [];
+      data.split("\n").forEach(function(line) {
+        if (line.indexOf("locale") == 0) {
+          let a = line.split(/\s+/);
+          if (a.length == 4) {
+            availableLocales.push(a[2]);
+          }
+        }
+      });
+      Cu.import("resource://mediakeysupport/content/locale.js");
+      locale = findClosestLocale(availableLocales);
+      if (Services.vc.compare(Services.appinfo.platformVersion, "6.*") > 0) {
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=481603
+        // there is no way to unload loaded JSM prior to firefox 7
+        Cu.unload("resource://mediakeysupport/content/locale.js");
+      }
+    });
   }
   else if (Services.vc.compare(Services.appinfo.platformVersion, "9.*") < 0) {
     Cm.addBootstrappedManifestLocation(data.installPath);
