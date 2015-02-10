@@ -289,7 +289,7 @@ function loadIntoWindow(window) {
     simKeyEvent.setAttribute("id", "mksSimKeyEvent");
 
     let mksLabel = "Media Key Support";
-    let simKeyEventLable = "Simulate Key Events";
+    let simKeyEventLabel = "Simulate Key Events";
     if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") > 0 || locale) {
       try {
         mksLabel = strings.GetStringFromName("mksTitle");
@@ -297,7 +297,7 @@ function loadIntoWindow(window) {
       catch (e) {
       }
       try {
-        simKeyEventLable = strings.GetStringFromName("simKeyEvents");
+        simKeyEventLabel = strings.GetStringFromName("simKeyEvents");
       }
       catch (e) {
       }
@@ -307,7 +307,7 @@ function loadIntoWindow(window) {
       toolmenu.addEventListener("popupshowing", onToolsMenuPopup, false);
     }
     mksmenu.setAttribute("label", mksLabel);
-    simKeyEvent.setAttribute("label", simKeyEventLable);
+    simKeyEvent.setAttribute("label", simKeyEventLabel);
 
     simKeyEvent.setAttribute("type", "checkbox");
     simKeyEvent.setAttribute("autocheck", false);
