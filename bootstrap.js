@@ -27,6 +27,7 @@ const KEY_PLAY_PAUSE = "play_pause";
 
 const PREF_ROOT = "extensions.mediakey@uFFFD.";
 const PREF_SIMKEYEVENTS = PREF_ROOT + "simulateKeyEvents";
+const PREF_DEBUGMODE = PREF_ROOT + "debugMode";
 
 Cu.import("resource://gre/modules/Services.jsm");
 
@@ -60,6 +61,7 @@ const MM_AVAILABLE = Services.vc.compare(Services.appinfo.platformVersion, "16.*
 let MediaKeySupport = function () {
   this.mkwin = null;
   this.simKeyEvents = false;
+  this.debugMode = false;
   this.globalMM = null;
 };
 
@@ -133,6 +135,9 @@ MediaKeySupport.prototype.observe = function (sub, topic, data) {
         }
       }
     }
+    else if (data == PREF_DEBUGMODE) {
+      this.debugMode = Services.prefs.getBoolPref(data);
+    }
   }
 };
 
@@ -159,8 +164,9 @@ MediaKeySupport.prototype.init = function () {
   Services.scriptloader.loadSubScript(scheme + "://mediakeysupport/content/defaultprefs.js",
                                       { pref: setDefaultPref } );
   Cu.import(scheme + "://mediakeysupport/content/mk-win.js");
+  this.debugMode = Services.prefs.getBoolPref(PREF_DEBUGMODE);
   this.mkwin = new MKWin();
-  this.mkwin.init();
+  this.mkwin.init(this.debugMode);
   this.simKeyEvents = Services.prefs.getBoolPref(PREF_SIMKEYEVENTS);
   this.register();
   if (MM_AVAILABLE && this.simKeyEvents) {
@@ -190,6 +196,13 @@ MediaKeySupport.prototype.unload = function () {
 MediaKeySupport.prototype.unloadmkwin = function () {
   this.mkwin.unload();
   this.mkwin = null;
+};
+
+MediaKeySupport.prototype.switchDebugMode = function () {
+  setGenericPref(Services.prefs, PREF_DEBUGMODE, !this.debugMode);
+  if (this.mkwin) {
+    this.mkwin.enableDebugMode(this.debugMode);
+  }
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -260,6 +273,14 @@ function onToolsMenuPopup(evt) {
       catch (e) {
       }
     }
+    let debugMode = evt.target.ownerDocument.getElementById("mksDebugMode");
+    if (debugMode) {
+      try {
+        debugMode.setAttribute("label", strings.GetStringFromName("debugMode"));
+      }
+      catch (e) {
+      }
+    }
     mksmenu.setAttribute("hidden", false);
   }
 }
@@ -269,10 +290,18 @@ function onMKSMenuPopup(evt) {
   if (simKeyEvent) {
     simKeyEvent.setAttribute("checked", mks.simKeyEvents);
   }
+  let debugMode = evt.target.ownerDocument.getElementById("mksDebugMode");
+  if (debugMode) {
+    debugMode.setAttribute("checked", mks.debugMode);
+  }
 }
 
 function onSimKeyEventClick(evt) {
   setGenericPref(Services.prefs, PREF_SIMKEYEVENTS, !mks.simKeyEvents);
+}
+
+function onDebugModeClick(evt) {
+  mks.switchDebugMode();
 }
 
 function loadIntoWindow(window) {
@@ -283,13 +312,16 @@ function loadIntoWindow(window) {
     let mksmenu = doc.createElement("menu");
     let mkspopup = doc.createElement("menupopup");
     let simKeyEvent = doc.createElement("menuitem");
+    let debugMode = doc.createElement("menuitem");
 
     mksmenu.setAttribute("id", "mksMenu");
     mkspopup.setAttribute("id", "mksMenuPopup");
     simKeyEvent.setAttribute("id", "mksSimKeyEvent");
+    debugMode.setAttribute("id", "mksDebugMode");
 
     let mksLabel = "Media Key Support";
     let simKeyEventLabel = "Simulate Key Events";
+    let debugModeLabel = "Debug Mode";
     if (Services.vc.compare(Services.appinfo.platformVersion, "7.*") > 0 || locale) {
       try {
         mksLabel = strings.GetStringFromName("mksTitle");
@@ -301,6 +333,11 @@ function loadIntoWindow(window) {
       }
       catch (e) {
       }
+      try {
+        debugModeLabel = strings.GetStringFromName("debugMode");
+      }
+      catch (e) {
+      }
     }
     else {
       mksmenu.setAttribute("hidden", true);
@@ -308,12 +345,18 @@ function loadIntoWindow(window) {
     }
     mksmenu.setAttribute("label", mksLabel);
     simKeyEvent.setAttribute("label", simKeyEventLabel);
+    debugMode.setAttribute("label", debugModeLabel);
 
     simKeyEvent.setAttribute("type", "checkbox");
     simKeyEvent.setAttribute("autocheck", false);
     simKeyEvent.addEventListener("command", onSimKeyEventClick, false);
 
+    debugMode.setAttribute("type", "checkbox");
+    debugMode.setAttribute("autocheck", false);
+    debugMode.addEventListener("command", onDebugModeClick, false);
+
     mkspopup.appendChild(simKeyEvent);
+    mkspopup.appendChild(debugMode);
     mksmenu.appendChild(mkspopup);
     toolmenu.appendChild(mksmenu);
 
@@ -327,6 +370,10 @@ function unloadFromWindow(window) {
   let simKeyEvent = doc.getElementById("mksSimKeyEvent");
   if (simKeyEvent) {
     simKeyEvent.removeEventListener("command", onSimKeyEventClick, false);
+  }
+  let debugMode = doc.getElementById("mksDebugMode");
+  if (debugMode) {
+    debugMode.removeEventListener("command", onDebugModeClick, false);
   }
   let mkspopup = doc.getElementById("mksMenuPopup");
   if (mkspopup) {

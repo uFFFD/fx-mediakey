@@ -241,6 +241,7 @@ this.MKWin = function MKWin() {
   let mediaKeyWndClass;
   let wndClassAtom = 0;
   let msghwnd = HWND(0);
+  let debugMode = false;
 
   const checkAppCmd = function (lp) {
     lp = ctypes.Int64.lo(lp);
@@ -262,7 +263,9 @@ this.MKWin = function MKWin() {
       default:
         return false;
     }
-    console.log("mediakey pressed: " + keyname);
+    if (debugMode) {
+      console.log("mediakey pressed: " + keyname);
+    }
     observerService.notifyObservers(null, "mediakey", keyname);
     return true;
   };
@@ -271,11 +274,15 @@ this.MKWin = function MKWin() {
     let ret;
     if (msg == WM_CREATE) {
       ret = RegisterShellHookWindow(hwnd);
-      console.log("RegisterShellHookWindow => " + ret);
+      if (debugMode) {
+        console.log("RegisterShellHookWindow => " + ret);
+      }
     }
     else if (msg == WM_DESTROY) {
       ret = DeregisterShellHookWindow(hwnd);
-      console.log("DeregisterShellHookWindow => " + ret);
+      if (debugMode) {
+        console.log("DeregisterShellHookWindow => " + ret);
+      }
     }
     else if (msg == WM_APPCOMMAND) {
       if (checkAppCmd(lp)) {
@@ -296,9 +303,12 @@ this.MKWin = function MKWin() {
     return DefWindowProcW(hwnd, msg, wp, lp);
   };
 
-  this.init = function () {
+  this.init = function (dbgMd) {
+    debugMode = dbgMd;
     WM_SHELLHOOKMESSAGE = RegisterWindowMessageW("SHELLHOOK");
-    console.log("RegisterWindowMessageW => " + WM_SHELLHOOKMESSAGE);
+    if (debugMode) {
+      console.log("RegisterWindowMessageW => " + WM_SHELLHOOKMESSAGE);
+    }
 
     hInst = GetModuleHandleW(ctypes.cast(LPVOID(0), LPWSTR));
 
@@ -313,7 +323,9 @@ this.MKWin = function MKWin() {
     mediaKeyWndClass.lpfnWndProc = wndProcCallback;
     mediaKeyWndClass.hInstance = hInst;
     wndClassAtom = RegisterClassW(mediaKeyWndClass.address());
-    console.log("RegisterClassW => " + wndClassAtom);
+    if (debugMode) {
+      console.log("RegisterClassW => " + wndClassAtom);
+    }
 
     msghwnd = CreateWindowExW(0, // dwExStyle
                               mediaKeyWinName, // lpClassName
@@ -325,20 +337,30 @@ this.MKWin = function MKWin() {
                               hInst, // hInstance
                               LPVOID(0) // lpParam
                              );
-    console.log("CreateWindowExW => " + (msghwnd.toString() != HWND(0).toString()));
+    if (debugMode) {
+      console.log("CreateWindowExW => " + (msghwnd.toString() != HWND(0).toString()));
+    }
   };
 
   this.unload = function () {
     let ret;
     if (msghwnd.toString() != HWND(0).toString()) {
       ret = DestroyWindow(msghwnd);
-      console.log("DestroyWindow => " + ret);
+      if (debugMode) {
+        console.log("DestroyWindow => " + ret);
+      }
     }
     if (wndClassAtom != 0) {
       ret = UnregisterClassW(mediaKeyWinName, hInst);
-      console.log("UnregisterClassW => " + ret);
+      if (debugMode) {
+        console.log("UnregisterClassW => " + ret);
+      }
     }
     user32.close();
     kernel32.close();
+  };
+
+  this.enableDebugMode = function (mode) {
+    debugMode = mode;
   };
 };
