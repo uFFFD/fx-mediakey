@@ -16,7 +16,7 @@ xpi:
 run: xpi
 	mozrunner $(ARGS) --binary $(BINARY)
 
-beta: BINARY=$(BETA)
+beta: BINARY = $(BETA)
 beta: run
 
 aurora: BINARY = $(AURORA)
