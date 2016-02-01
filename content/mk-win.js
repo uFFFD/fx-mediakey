@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2014-2015 uFFFD
+Copyright (c) 2014-2016 uFFFD
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,37 @@ SOFTWARE.
 this.EXPORTED_SYMBOLS = [
   "MKWin"
 ];
+
+/*
+This is the js module for meida key support on windows
+
+
+Usage:
+
+Components.utils.import("path/to/mk-win.js");
+var mkwin = new MKWin();
+mkwin.init(false);
+mkwin.unload();
+
+
+init():
+This will create a invisible window that waits for WM_APPCOMMAND and
+HSHELL_APPCOMMAND.
+
+When WM_APPCOMMAND or HSHELL_APPCOMMAND arrives and its lParam contains one of
+these APPCOMMAND_MEDIA_* values, a corresponding notify will be sent to all
+observers watching "mediakey" topic in Firefox:
+
+  APPCOMMAND_MEDIA_NEXTTRACK      =>  next
+  APPCOMMAND_MEDIA_PREVIOUSTRACK  =>  previous
+  APPCOMMAND_MEDIA_STOP           =>  stop
+  APPCOMMAND_MEDIA_PLAY_PAUSE     =>  play_pause
+
+
+unload():
+Destroy that invisible window and do some cleanups
+
+*/
 
 const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const { ctypes } = Cu.import("resource://gre/modules/ctypes.jsm");
